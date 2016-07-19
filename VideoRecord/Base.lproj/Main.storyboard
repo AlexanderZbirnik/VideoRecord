@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="ViW-yW-IEG">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="VideoRecord" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC" userLabel="backgroundView">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="1000"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="c3N-RV-dgY" userLabel="backgroundImageView">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="1000"/>
+                            </imageView>
+                            <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nga-EG-fh6">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="1000"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="MkO-pb-q8D">
+                                    <rect key="frame" x="0.0" y="0.0" width="600" height="1000"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                </view>
+                                <blurEffect style="dark"/>
+                            </visualEffectView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="B7B-KO-hw5" userLabel="captureView">
+                                <rect key="frame" x="0.0" y="64" width="600" height="771"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="30O-YQ-FEP" userLabel="screenView">
+                                        <rect key="frame" x="147" y="232" width="307" height="307"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" secondItem="30O-YQ-FEP" secondAttribute="height" multiplier="1:1" id="Ql4-gA-tdU"/>
+                                        </constraints>
+                                    </view>
+                                    <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Yiv-Pa-FH2" customClass="RecordButton" customModule="VideoRecord" customModuleProvider="target">
+                                        <rect key="frame" x="238" y="660" width="123" height="24"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="123" id="ueE-YB-CtH"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" name="HelveticaNeue-Medium" family="Helvetica Neue" pointSize="20"/>
+                                        <inset key="titleEdgeInsets" minX="6" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                        <state key="normal" title="00:00:00" image="recordOff">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="startOrStopButtonAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="8p9-FS-Gb9"/>
+                                        </connections>
+                                    </button>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fhq-ly-8mV" userLabel="bottomBufferView">
+                                        <rect key="frame" x="255" y="684" width="90" height="87"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="90" id="leA-Xt-Iez"/>
+                                        </constraints>
+                                    </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xIB-fn-q63" userLabel="topBufferView">
+                                        <rect key="frame" x="255" y="539" width="90" height="121"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="90" id="0jv-3n-Ehd"/>
+                                            <constraint firstAttribute="height" constant="116" id="rkX-t3-0jA"/>
+                                        </constraints>
+                                        <variation key="default">
+                                            <mask key="constraints">
+                                                <exclude reference="rkX-t3-0jA"/>
+                                            </mask>
+                                        </variation>
+                                    </view>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="capture_device_big" translatesAutoresizingMaskIntoConstraints="NO" id="uI9-nv-w7i">
+                                        <rect key="frame" x="0.0" y="0.0" width="600" height="771"/>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="uI9-nv-w7i" secondAttribute="bottom" id="IJH-Ud-3Kn"/>
+                                    <constraint firstItem="xIB-fn-q63" firstAttribute="centerX" secondItem="B7B-KO-hw5" secondAttribute="centerX" id="NMe-BZ-U4F"/>
+                                    <constraint firstItem="fhq-ly-8mV" firstAttribute="top" secondItem="Yiv-Pa-FH2" secondAttribute="bottom" id="Ppc-GI-Kt4"/>
+                                    <constraint firstItem="30O-YQ-FEP" firstAttribute="centerY" secondItem="B7B-KO-hw5" secondAttribute="centerY" id="VFA-uk-B0e"/>
+                                    <constraint firstItem="fhq-ly-8mV" firstAttribute="centerX" secondItem="B7B-KO-hw5" secondAttribute="centerX" id="Wsp-Um-GWw"/>
+                                    <constraint firstItem="xIB-fn-q63" firstAttribute="top" secondItem="30O-YQ-FEP" secondAttribute="bottom" id="dM1-wJ-v8L"/>
+                                    <constraint firstItem="uI9-nv-w7i" firstAttribute="leading" secondItem="B7B-KO-hw5" secondAttribute="leading" id="e2X-Av-TXW"/>
+                                    <constraint firstItem="Yiv-Pa-FH2" firstAttribute="centerX" secondItem="B7B-KO-hw5" secondAttribute="centerX" id="ez5-rb-Id4"/>
+                                    <constraint firstAttribute="trailing" secondItem="uI9-nv-w7i" secondAttribute="trailing" id="fzN-2b-5lv"/>
+                                    <constraint firstItem="30O-YQ-FEP" firstAttribute="width" secondItem="B7B-KO-hw5" secondAttribute="width" multiplier="1:1.96" id="gXF-BP-dou"/>
+                                    <constraint firstItem="uI9-nv-w7i" firstAttribute="top" secondItem="B7B-KO-hw5" secondAttribute="top" id="hp1-hj-Zul"/>
+                                    <constraint firstAttribute="bottom" secondItem="fhq-ly-8mV" secondAttribute="bottom" id="pRB-5Q-Ibq"/>
+                                    <constraint firstItem="Yiv-Pa-FH2" firstAttribute="top" secondItem="xIB-fn-q63" secondAttribute="bottom" id="rsa-MC-tfR"/>
+                                    <constraint firstItem="fhq-ly-8mV" firstAttribute="height" secondItem="xIB-fn-q63" secondAttribute="height" multiplier="1:1.4" id="vaL-Du-a5U"/>
+                                    <constraint firstAttribute="width" secondItem="B7B-KO-hw5" secondAttribute="height" multiplier="200:257" id="we6-x5-mZO"/>
+                                    <constraint firstItem="30O-YQ-FEP" firstAttribute="centerX" secondItem="B7B-KO-hw5" secondAttribute="centerX" id="zo2-g5-PBE"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="nga-EG-fh6" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="13s-CS-B69"/>
+                            <constraint firstItem="B7B-KO-hw5" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="3pg-oE-6ec"/>
+                            <constraint firstAttribute="trailing" secondItem="nga-EG-fh6" secondAttribute="trailing" id="4LR-84-luY"/>
+                            <constraint firstAttribute="trailing" secondItem="B7B-KO-hw5" secondAttribute="trailing" id="Ay0-by-BKO"/>
+                            <constraint firstItem="B7B-KO-hw5" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="K52-ov-sOd"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="nga-EG-fh6" secondAttribute="bottom" id="PaX-Ii-TR2"/>
+                            <constraint firstAttribute="trailing" secondItem="c3N-RV-dgY" secondAttribute="trailing" id="U5H-hX-y5w"/>
+                            <constraint firstItem="c3N-RV-dgY" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="fTI-Es-e4S"/>
+                            <constraint firstItem="B7B-KO-hw5" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="lKQ-nq-6lH"/>
+                            <constraint firstItem="nga-EG-fh6" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="sed-eg-320"/>
+                            <constraint firstItem="c3N-RV-dgY" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="uXG-By-dHd"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="c3N-RV-dgY" secondAttribute="bottom" id="ukI-Wq-hub"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" id="DCz-sg-Hdu">
+                        <barButtonItem key="leftBarButtonItem" title="Capture Your SAY" id="CqW-yF-w4Q">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" image="ic_camera_rear_white" id="9P4-HY-wxU" customClass="CameraBarButton" customModule="VideoRecord" customModuleProvider="target">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <connections>
+                                <action selector="changeCameraAction:" destination="BYZ-38-t0r" id="tSB-jI-Xut"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+                    <size key="freeformSize" width="600" height="1000"/>
+                    <connections>
+                        <outlet property="backGroundImageView" destination="c3N-RV-dgY" id="IPc-3n-IG5"/>
+                        <outlet property="backgroundView" destination="8bC-Xf-vdC" id="QCy-ef-Lkn"/>
+                        <outlet property="changeCameraBarButton" destination="9P4-HY-wxU" id="yQ1-YM-9De"/>
+                        <outlet property="recordButton" destination="Yiv-Pa-FH2" id="Tl5-DC-5U0"/>
+                        <outlet property="screenView" destination="30O-YQ-FEP" id="4R3-yB-Nqa"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="349" y="187"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="5Sb-aK-bp3">
+            <objects>
+                <navigationController id="ViW-yW-IEG" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="vF0-VO-iwq">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="B2z-cU-NZC"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="qp5-th-5Jm" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-489" y="113"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="capture_device_big" width="1400" height="1798"/>
+        <image name="ic_camera_rear_white" width="24" height="24"/>
+        <image name="recordOff" width="10" height="10"/>
+    </resources>
+</document>
