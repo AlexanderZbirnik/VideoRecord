@@ -7,10 +7,11 @@
 //
 
 import UIKit
+
 import AVFoundation
 import AssetsLibrary
 
-enum Timer {
+enum Time {
     
     static let zero: UInt16 = 0
     static let tenSeconds: UInt16 = 10
@@ -19,7 +20,13 @@ enum Timer {
     static let maxDuration: UInt16 = 90
 }
 
-class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDelegate {
+enum CropSize {
+    
+    static let width: CGFloat = 300.0
+    static let height: CGFloat = 300.0
+}
+
+class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
     
     
     @IBOutlet weak var changeCameraBarButton: CameraBarButton!
@@ -32,12 +39,11 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     var customPreviewLayer: AVCaptureVideoPreviewLayer?
     var videoDeviceInput: AVCaptureDeviceInput?
     var audioDeviceInput: AVCaptureDeviceInput?
-    var videoDataOutput: AVCaptureVideoDataOutput?
-    var sessionQueue: dispatch_queue_t?
+    var movieFileOutput: AVCaptureMovieFileOutput?
     
     var startRecord: Bool = false
     var timer: NSTimer?
-    var count: UInt16 = Timer.zero
+    var count: UInt16 = Time.zero
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,9 +59,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
 // MARK: - Setup Camera Methods
     
     func setupCameraSession() {
-        
-        self.sessionQueue = dispatch_queue_create("videoQueue", DISPATCH_QUEUE_SERIAL)
-        
+                
         // Session
         self.captureSession = AVCaptureSession()
         self.captureSession!.sessionPreset = AVCaptureSessionPreset640x480
@@ -76,16 +80,23 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         view.layoutIfNeeded()
         
         self.customPreviewLayer = previewLayerWithFrame(self.screenView.bounds, session: self.captureSession!)
-        
         self.screenView.layer.addSublayer(customPreviewLayer!)
         
-        self.videoDataOutput = captureVideoDataOutput()
-        
-        if self.captureSession!.canAddOutput(self.videoDataOutput) {
-            self.captureSession!.addOutput(self.videoDataOutput)
+        self.movieFileOutput = captureMovieFileOutput()
+
+        if self.captureSession!.canAddOutput(self.movieFileOutput) {
+            self.captureSession!.addOutput(self.movieFileOutput)
         }
+
+        let connection: AVCaptureConnection?
+
+       connection = self.movieFileOutput!.connectionWithMediaType(AVMediaTypeVideo)
         
-        self.videoDataOutput!.setSampleBufferDelegate(self, queue: self.sessionQueue)
+        if connection!.supportsVideoStabilization == true{
+            
+            connection!.preferredVideoStabilizationMode = .Standard
+        }
+        connection!.videoOrientation = .Portrait
         
         self.captureSession!.commitConfiguration()
     }
@@ -93,7 +104,6 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     func audioInput() -> AVCaptureDeviceInput {
         
         let audioDevice = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeAudio)
-        
         var audioInput = AVCaptureDeviceInput()
         
         do {
@@ -105,16 +115,13 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         return audioInput
     }
     
-    func captureVideoDataOutput() -> AVCaptureVideoDataOutput {
+    func captureMovieFileOutput() -> AVCaptureMovieFileOutput {
         
-        let videoData = AVCaptureVideoDataOutput()
+        let movieFile = AVCaptureMovieFileOutput()
         
-        videoData.videoSettings =
-        [String(kCVPixelBufferPixelFormatTypeKey): Int(kCVPixelFormatType_32BGRA)]
+        movieFile.minFreeDiskSpaceLimit = 1024 * 1024
         
-        videoData.alwaysDiscardsLateVideoFrames = true
-        
-        return videoData
+        return movieFile
     }
     
     func previewLayerWithFrame(frame: CGRect, session: AVCaptureSession) -> AVCaptureVideoPreviewLayer {
@@ -155,41 +162,149 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         return videoDeviceInput
     }
     
-// MARK: - edit video methods
+//MARK: - edit video methods
     
-    func imageFromSampleBuffer(sampleBuffer: CMSampleBufferRef) -> UIImage {
+    func cropFileWithURL(URL: NSURL) {
         
-        let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
-        CVPixelBufferLockBaseAddress(imageBuffer!, 0)
-        let baseAddress = CVPixelBufferGetBaseAddress(imageBuffer!)
-        let bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer!)
-        let width = CVPixelBufferGetWidth(imageBuffer!)
-        let height = CVPixelBufferGetHeight(imageBuffer!)
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.PremultipliedFirst.rawValue | CGBitmapInfo.ByteOrder32Little.rawValue)
-        let context = CGBitmapContextCreate(baseAddress, width, height, 8, bytesPerRow, colorSpace,bitmapInfo.rawValue)
-        let qImage = CGBitmapContextCreateImage(context)
-        CVPixelBufferUnlockBaseAddress(imageBuffer!, 0)
-        let image = UIImage.init(CGImage: qImage!, scale: 1.0, orientation: UIImageOrientation.Right)
-        return(image)
+        let outputhFileUrl = uniqueFileURL()
+        
+        let asset = AVAsset(URL: URL)
+        
+        let composition = AVMutableComposition()
+        composition.addMutableTrackWithMediaType(AVMediaTypeVideo, preferredTrackID: kCMPersistentTrackID_Invalid)
+        
+        let clipVideoTrack = asset.tracksWithMediaType(AVMediaTypeVideo).first
+        
+        let videoComposition = AVMutableVideoComposition()
+        videoComposition.renderSize = CGSize(width: (clipVideoTrack?.naturalSize.height)!, height: (clipVideoTrack?.naturalSize.height)!)
+        videoComposition.frameDuration = CMTimeMake(1, 30)
+        
+        let instructions = AVMutableVideoCompositionInstruction()
+        instructions.timeRange = CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(Float64(Time.maxDuration), 30))
+        
+        let transformer = AVMutableVideoCompositionLayerInstruction(assetTrack: clipVideoTrack!)
+        
+        let t1 = CGAffineTransformMakeTranslation((clipVideoTrack?.naturalSize.height)!,
+                                                  -((clipVideoTrack?.naturalSize.width)! - (clipVideoTrack?.naturalSize.height)!) / 2)
+        
+        let t2 = CGAffineTransformRotate(t1, CGFloat(M_PI_2))
+        
+        let finalTransform = t2
+        
+        transformer.setTransform(finalTransform, atTime: kCMTimeZero)
+        
+        instructions.layerInstructions = [transformer]
+        videoComposition.instructions = [instructions]
+        
+        let exporter = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHighestQuality)
+        
+        exporter?.videoComposition = videoComposition
+        exporter?.outputURL = outputhFileUrl
+        exporter?.outputFileType = AVFileTypeQuickTimeMovie
+        
+        exporter?.exportAsynchronouslyWithCompletionHandler({
+            
+            self.resizeFileWithURL(outputhFileUrl, newSize: CGSize(width: CropSize.width, height: CropSize.height))
+        })
+    }
+    
+    func resizeFileWithURL(URL: NSURL, newSize: CGSize) {
+
+        let outputhFileUrl = uniqueFileURL()
+        
+        let asset = AVAsset(URL: URL)
+        
+        let composition = AVMutableComposition()
+        composition.addMutableTrackWithMediaType(AVMediaTypeVideo, preferredTrackID: kCMPersistentTrackID_Invalid)
+        
+        let clipVideoTrack = asset.tracksWithMediaType(AVMediaTypeVideo).first
+        
+        let videoComposition = AVMutableVideoComposition()
+        videoComposition.renderSize = CGSize(width: newSize.width, height: newSize.height)
+        videoComposition.frameDuration = CMTimeMake(1, 30)
+        
+        let instructions = AVMutableVideoCompositionInstruction()
+        instructions.timeRange = CMTimeRangeMake(kCMTimeZero, CMTimeMakeWithSeconds(Float64(Time.maxDuration), 30))
+        
+        let transformer = AVMutableVideoCompositionLayerInstruction(assetTrack: clipVideoTrack!)
+        
+        let t1 = CGAffineTransformMakeTranslation(0, 0)
+        
+        let t3 = CGAffineTransformScale(t1, newSize.height / (clipVideoTrack?.naturalSize.height)!,
+                                            newSize.width / (clipVideoTrack?.naturalSize.width)!)
+        
+        let finalTransform = t3
+        
+        transformer.setTransform(finalTransform, atTime: kCMTimeZero)
+        
+        instructions.layerInstructions = [transformer]
+        videoComposition.instructions = [instructions]
+        
+        let exporter = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHighestQuality)
+        
+        exporter?.videoComposition = videoComposition
+        exporter?.outputURL = outputhFileUrl
+        exporter?.outputFileType = AVFileTypeQuickTimeMovie
+        
+        exporter?.exportAsynchronouslyWithCompletionHandler({
+            
+            self.saveVieoToAlbumFromURL(outputhFileUrl)
+        })
+    }
+    
+    func saveVieoToAlbumFromURL(URL: NSURL) {
+        
+        let assetsLibrary = ALAssetsLibrary()
+        
+        if assetsLibrary.videoAtPathIsCompatibleWithSavedPhotosAlbum(URL) {
+            
+            assetsLibrary.writeVideoAtPathToSavedPhotosAlbum(URL, completionBlock: { (url, error) in
+                
+                if error != nil {
+                    
+                    print("error: \(error)")
+                    
+                } else {
+                    
+                    print("Save to album! url: \(url)")
+                }
+            })
+        }
+    }
+    
+    func stopRecoredVideo() {
+        
+        self.startRecord = false
+        
+        self.movieFileOutput?.stopRecording()
+        self.timer?.invalidate()
+        self.count = Time.zero
+        
+        self.recordButton.title("00:00:00")
+        self.recordButton.startRecordVideo(false)
+    }
+    
+    func uniqueFileURL() -> NSURL {
+        
+        let fileName = NSProcessInfo.processInfo().globallyUniqueString
+        let filePath = "file:/\(NSTemporaryDirectory())\(fileName).mov"
+        let fileUrl = NSURL(string: filePath)
+        
+        return fileUrl!
     }
     
 //MARK: - timer methods
     
     func countTimer() {
         
-        if self.count < (Timer.maxDuration - 1) {
+        if self.count < (Time.maxDuration - 1) {
             
             self.count += 1
             self.recordButton.title(formatDurationTitleWithCountSeconds(self.count))
             
         } else {
             
-            self.timer?.invalidate()
-            self.count = Timer.zero
-            
-            self.recordButton.title("00:00:00")
-            self.recordButton.startRecordVideo(false)
+            stopRecoredVideo()
         }
     }
     
@@ -197,21 +312,21 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         
         var title = ""
         
-        if count < Timer.oneMunute {
+        if count < Time.oneMunute {
             
             title = "00:00:\(formatString(count))"
             
-        } else if count >= Timer.oneMunute {
+        } else if count >= Time.oneMunute {
             
-            var seconds = UInt16(Float(count) % Float(Timer.oneMunute))
-            var minuts = count / Timer.oneMunute
+            var seconds = UInt16(Float(count) % Float(Time.oneMunute))
+            var minuts = count / Time.oneMunute
             
-            if minuts >= Timer.oneMunute {
+            if minuts >= Time.oneMunute {
                 
-                let hours = count / Timer.oneHour
+                let hours = count / Time.oneHour
                 
-                minuts = UInt16(Float(count) % Float(Timer.oneHour)) / Timer.oneMunute
-                seconds = UInt16(Float(count) % Float(Timer.oneHour) % Float(Timer.oneMunute))
+                minuts = UInt16(Float(count) % Float(Time.oneHour)) / Time.oneMunute
+                seconds = UInt16(Float(count) % Float(Time.oneHour) % Float(Time.oneMunute))
                 
                 title = "\(formatString(hours)):\(formatString(minuts)):\(formatString(seconds))"
                 
@@ -226,7 +341,7 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     func formatString(number:UInt16) -> String {
         
-        if number < Timer.tenSeconds {
+        if number < Time.tenSeconds {
             
             return "0\(number)"
             
@@ -236,47 +351,41 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
         }
     }
     
-// MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
-
-    func captureOutput(captureOutput: AVCaptureOutput, didOutputSampleBuffer sampleBuffer: CMSampleBufferRef, fromConnection connection: AVCaptureConnection) {
+// MARK: - AVCaptureFileOutputRecordingDelegate
+    
+    func captureOutput(captureOutput: AVCaptureFileOutput!, didStartRecordingToOutputFileAtURL fileURL: NSURL!, fromConnections connections: [AnyObject]!) {
+        print("Started")
         
-        dispatch_async(dispatch_get_main_queue()) { 
-            
-            let image = self.imageFromSampleBuffer(sampleBuffer)
-            
-            self.backGroundImageView.image = image
-        }
     }
     
+    func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError!){
+        
+        cropFileWithURL(outputFileURL)
+    }
+
 // MARK: - Actions
     
     @IBAction func changeCameraAction(sender: CameraBarButton) {
         
         let videoDevice = self.videoDeviceInput?.device
         var devicePosition = videoDevice?.position
-        var sessionPreset: String?
         var activeFront: Bool?
         
         if devicePosition == .Back {
             
             devicePosition = AVCaptureDevicePosition.Front
-            sessionPreset = AVCaptureSessionPreset640x480
             activeFront = true
             
         } else {
             
             devicePosition = AVCaptureDevicePosition.Back
-            sessionPreset = AVCaptureSessionPreset1920x1080
             activeFront = false
         }
         
         sender.activeFrontCamera(activeFront!)
         
         self.captureSession?.beginConfiguration()
-        
         self.captureSession?.removeInput(self.videoDeviceInput)
-        self.captureSession?.sessionPreset = sessionPreset
-        
         self.videoDeviceInput = deviceInputWithMediaType(AVMediaTypeVideo, position: devicePosition!)
 
         if self.captureSession!.canAddInput(self.videoDeviceInput) {
@@ -296,15 +405,18 @@ class ViewController: UIViewController, AVCaptureVideoDataOutputSampleBufferDele
             
             self.timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(countTimer), userInfo: nil, repeats: true)
             
+            let connection = self.movieFileOutput?.connectionWithMediaType(AVMediaTypeVideo)
+            connection?.videoOrientation = (self.customPreviewLayer?.connection.videoOrientation)!
+
+            self.movieFileOutput?.startRecordingToOutputFileURL(uniqueFileURL(), recordingDelegate: self)
+            
         } else {
             
-            self.startRecord = false
+            stopRecoredVideo()
         }
         sender.startRecordVideo(self.startRecord)
     }
 }
-
-
 
 
 

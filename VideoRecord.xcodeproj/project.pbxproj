@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		C733F3E11D3D18CE00072F73 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C733F3DF1D3D18CE00072F73 /* AVFoundation.framework */; };
 		C745FABD1D3E243700289BBE /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C745FABC1D3E243700289BBE /* AssetsLibrary.framework */; };
-		C745FAC51D3E881800289BBE /* CameraBarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C745FAC31D3E881800289BBE /* CameraBarButton.swift */; };
-		C745FAC61D3E881800289BBE /* RecordButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C745FAC41D3E881800289BBE /* RecordButton.swift */; };
+		C7B45C5B1D3E9149003AC44C /* CameraBarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B45C591D3E9149003AC44C /* CameraBarButton.swift */; };
+		C7B45C5C1D3E9149003AC44C /* RecordButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7B45C5A1D3E9149003AC44C /* RecordButton.swift */; };
 		C7F03DFC1D3CBADA002B10C1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F03DFB1D3CBADA002B10C1 /* AppDelegate.swift */; };
 		C7F03DFE1D3CBADA002B10C1 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F03DFD1D3CBADA002B10C1 /* ViewController.swift */; };
 		C7F03E011D3CBADA002B10C1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C7F03DFF1D3CBADA002B10C1 /* Main.storyboard */; };
@@ -21,8 +21,8 @@
 /* Begin PBXFileReference section */
 		C733F3DF1D3D18CE00072F73 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		C745FABC1D3E243700289BBE /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
-		C745FAC31D3E881800289BBE /* CameraBarButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CameraBarButton.swift; path = Buttons/CameraBarButton.swift; sourceTree = "<group>"; };
-		C745FAC41D3E881800289BBE /* RecordButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RecordButton.swift; path = Buttons/RecordButton.swift; sourceTree = "<group>"; };
+		C7B45C591D3E9149003AC44C /* CameraBarButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CameraBarButton.swift; path = Buttons/CameraBarButton.swift; sourceTree = "<group>"; };
+		C7B45C5A1D3E9149003AC44C /* RecordButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = RecordButton.swift; path = Buttons/RecordButton.swift; sourceTree = "<group>"; };
 		C7F03DF81D3CBADA002B10C1 /* VideoRecord.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoRecord.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C7F03DFB1D3CBADA002B10C1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C7F03DFD1D3CBADA002B10C1 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -45,16 +45,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		C745FAC21D3E880C00289BBE /* Buttons */ = {
+		C7B45C571D3E9108003AC44C /* Buttons */ = {
 			isa = PBXGroup;
 			children = (
-				C745FAC31D3E881800289BBE /* CameraBarButton.swift */,
-				C745FAC41D3E881800289BBE /* RecordButton.swift */,
+				C7B45C591D3E9149003AC44C /* CameraBarButton.swift */,
+				C7B45C5A1D3E9149003AC44C /* RecordButton.swift */,
 			);
 			name = Buttons;
 			sourceTree = "<group>";
 		};
-		C745FAC71D3E883300289BBE /* frameworks */ = {
+		C7B45C581D3E9111003AC44C /* frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				C745FABC1D3E243700289BBE /* AssetsLibrary.framework */,
@@ -66,8 +66,8 @@
 		C7F03DEF1D3CBADA002B10C1 = {
 			isa = PBXGroup;
 			children = (
-				C745FAC71D3E883300289BBE /* frameworks */,
 				C7F03DFA1D3CBADA002B10C1 /* VideoRecord */,
+				C7B45C581D3E9111003AC44C /* frameworks */,
 				C7F03DF91D3CBADA002B10C1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -83,9 +83,9 @@
 		C7F03DFA1D3CBADA002B10C1 /* VideoRecord */ = {
 			isa = PBXGroup;
 			children = (
+				C7B45C571D3E9108003AC44C /* Buttons */,
 				C7F03DFB1D3CBADA002B10C1 /* AppDelegate.swift */,
 				C7F03DFD1D3CBADA002B10C1 /* ViewController.swift */,
-				C745FAC21D3E880C00289BBE /* Buttons */,
 				C7F03DFF1D3CBADA002B10C1 /* Main.storyboard */,
 				C7F03E041D3CBADA002B10C1 /* LaunchScreen.storyboard */,
 				C7F03E021D3CBADA002B10C1 /* Assets.xcassets */,
@@ -165,8 +165,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C745FAC61D3E881800289BBE /* RecordButton.swift in Sources */,
-				C745FAC51D3E881800289BBE /* CameraBarButton.swift in Sources */,
+				C7B45C5C1D3E9149003AC44C /* RecordButton.swift in Sources */,
+				C7B45C5B1D3E9149003AC44C /* CameraBarButton.swift in Sources */,
 				C7F03DFE1D3CBADA002B10C1 /* ViewController.swift in Sources */,
 				C7F03DFC1D3CBADA002B10C1 /* AppDelegate.swift in Sources */,
 			);
