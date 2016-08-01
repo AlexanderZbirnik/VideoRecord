@@ -26,7 +26,7 @@ enum CropSize {
     static let height: CGFloat = 300.0
 }
 
-class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
+class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate, TimerDelegate{
     
     
     @IBOutlet weak var changeCameraBarButton: CameraBarButton!
@@ -42,8 +42,7 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
     var movieFileOutput: AVCaptureMovieFileOutput?
     
     var startRecord: Bool = false
-    var timer: NSTimer?
-    var count: UInt16 = Time.zero
+    var timer: Timer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,6 +50,9 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
         self.navigationController!.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: .Default)
         self.navigationController!.navigationBar.shadowImage = UIImage()
         self.navigationController!.navigationBar.translucent = true
+        
+        self.timer = Timer(seconds: UInt32(Time.maxDuration))
+        self.timer?.delegate = self
         
         setupCameraSession()
         self.captureSession?.startRunning()
@@ -275,10 +277,7 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
     func stopRecoredVideo() {
         
         self.startRecord = false
-        
         self.movieFileOutput?.stopRecording()
-        self.timer?.invalidate()
-        self.count = Time.zero
         
         self.recordButton.title("00:00:00")
         self.recordButton.startRecordVideo(false)
@@ -291,21 +290,6 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
         let fileUrl = NSURL(string: filePath)
         
         return fileUrl!
-    }
-    
-//MARK: - timer methods
-    
-    func countTimer() {
-        
-        if self.count < (Time.maxDuration - 1) {
-            
-            self.count += 1
-            self.recordButton.title(formatDurationTitleWithCountSeconds(self.count))
-            
-        } else {
-            
-            stopRecoredVideo()
-        }
     }
     
     func formatDurationTitleWithCountSeconds(count: UInt16) -> String {
@@ -362,6 +346,18 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
         
         cropFileWithURL(outputFileURL)
     }
+    
+// MARK: TimerDelegate
+    
+    func timer(timer:Timer, countTimerOnSecond: UInt32) {
+        
+        self.recordButton.title(formatDurationTitleWithCountSeconds(UInt16(countTimerOnSecond)))
+    }
+    
+    func didFinishTimer(timer: Timer) {
+        
+        stopRecoredVideo()
+    }
 
 // MARK: - Actions
     
@@ -397,13 +393,10 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
     
     @IBAction func startOrStopButtonAction(sender: RecordButton) {
         
-        sender.startRecordVideo(self.startRecord)
-        
         if self.startRecord == false {
             
             self.startRecord = true
-            
-            self.timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: #selector(countTimer), userInfo: nil, repeats: true)
+            self.timer?.startTimer()
             
             let connection = self.movieFileOutput?.connectionWithMediaType(AVMediaTypeVideo)
             connection?.videoOrientation = (self.customPreviewLayer?.connection.videoOrientation)!
@@ -413,6 +406,7 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
         } else {
             
             stopRecoredVideo()
+            self.timer?.stopTimer()
         }
         sender.startRecordVideo(self.startRecord)
     }
