@@ -24,9 +24,8 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         super.init()
         
         self.captureSession = AVCaptureSession()
-        self.captureSession!.sessionPreset = AVCaptureSessionPreset640x480
-        
         self.videoDeviceInput = deviceInputWithMediaType(AVMediaTypeVideo, position: .Front)
+        self.captureSession!.sessionPreset = sessionPresetWithDevice(self.videoDeviceInput!.device)
         
         if self.captureSession!.canAddInput(self.videoDeviceInput) {
             self.captureSession!.addInput(self.videoDeviceInput)
@@ -81,6 +80,7 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         self.captureSession?.beginConfiguration()
         self.captureSession?.removeInput(self.videoDeviceInput)
         self.videoDeviceInput = deviceInputWithMediaType(AVMediaTypeVideo, position: devicePosition!)
+        self.captureSession!.sessionPreset = sessionPresetWithDevice(self.videoDeviceInput!.device)
         
         if self.captureSession!.canAddInput(self.videoDeviceInput) {
             self.captureSession!.addInput(self.videoDeviceInput)
@@ -165,6 +165,29 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         }
         
         return videoDeviceInput
+    }
+    
+    @objc private func sessionPresetWithDevice(device: AVCaptureDevice) -> String {
+        
+        var sessionPresets = [AVCaptureSessionPreset1920x1080, AVCaptureSessionPreset1280x720,
+                              AVCaptureSessionPreset640x480, AVCaptureSessionPreset352x288]
+        
+        if #available(iOS 9.0, *) {
+            
+            sessionPresets.insert(AVCaptureSessionPreset3840x2160, atIndex: 0)
+        }
+        
+        for preset in sessionPresets {
+            
+            let isSupported = device.supportsAVCaptureSessionPreset(preset)
+            
+            if isSupported == true {
+                
+                return preset
+            }
+        }
+        
+        return ""
     }
     
 //MARK: - private edit videorecord methods
