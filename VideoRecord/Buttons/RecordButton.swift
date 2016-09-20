@@ -10,7 +10,7 @@ import UIKit
 
 class RecordButton: UIButton {
     
-    func startRecordVideo(start: Bool) {
+    func startRecordVideo(_ start: Bool) {
         
         var activeIcon = UIImage()
         
@@ -22,11 +22,11 @@ class RecordButton: UIButton {
             
             activeIcon = UIImage.init(named: "recordOff")!
         }
-        setImage(activeIcon, forState: .Normal)
+        setImage(activeIcon, for: UIControlState())
     }
     
-    func title(title: String) {
+    func title(_ title: String) {
         
-        setTitle(title, forState: .Normal)
+        setTitle(title, for: UIControlState())
     }
 }

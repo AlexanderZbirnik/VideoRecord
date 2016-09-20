@@ -24,7 +24,7 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         super.init()
         
         self.captureSession = AVCaptureSession()
-        self.videoDeviceInput = deviceInputWithMediaType(AVMediaTypeVideo, position: .Front)
+        self.videoDeviceInput = deviceInputWithMediaType(AVMediaTypeVideo as NSString, position: .front)
         self.captureSession!.sessionPreset = sessionPresetWithDevice(self.videoDeviceInput!.device)
         
         if self.captureSession!.canAddInput(self.videoDeviceInput) {
@@ -48,13 +48,13 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         
         let connection: AVCaptureConnection?
         
-        connection = self.movieFileOutput!.connectionWithMediaType(AVMediaTypeVideo)
+        connection = self.movieFileOutput!.connection(withMediaType: AVMediaTypeVideo)
         
-        if connection!.supportsVideoStabilization == true{
+        if connection!.isVideoStabilizationSupported == true{
             
-            connection!.preferredVideoStabilizationMode = .Standard
+            connection!.preferredVideoStabilizationMode = .standard
         }
-        connection!.videoOrientation = .Portrait
+        connection!.videoOrientation = .portrait
         
         self.captureSession!.commitConfiguration()
         
@@ -68,18 +68,18 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         let videoDevice = self.videoDeviceInput?.device
         var devicePosition = videoDevice?.position
         
-        if devicePosition == .Back {
+        if devicePosition == .back {
             
-            devicePosition = AVCaptureDevicePosition.Front
+            devicePosition = AVCaptureDevicePosition.front
             
         } else {
             
-            devicePosition = AVCaptureDevicePosition.Back
+            devicePosition = AVCaptureDevicePosition.back
         }
         
         self.captureSession?.beginConfiguration()
         self.captureSession?.removeInput(self.videoDeviceInput)
-        self.videoDeviceInput = deviceInputWithMediaType(AVMediaTypeVideo, position: devicePosition!)
+        self.videoDeviceInput = deviceInputWithMediaType(AVMediaTypeVideo as NSString, position: devicePosition!)
         self.captureSession!.sessionPreset = sessionPresetWithDevice(self.videoDeviceInput!.device)
         
         if self.captureSession!.canAddInput(self.videoDeviceInput) {
@@ -93,10 +93,10 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
     
     func startRecordVideo() {
         
-        let connection = self.movieFileOutput?.connectionWithMediaType(AVMediaTypeVideo)
+        let connection = self.movieFileOutput?.connection(withMediaType: AVMediaTypeVideo)
         connection?.videoOrientation = (self.videoPreviewLayer?.connection.videoOrientation)!
         
-        self.movieFileOutput?.startRecordingToOutputFileURL(uniqueFileURL(), recordingDelegate: self)
+        self.movieFileOutput?.startRecording(toOutputFileURL: uniqueFileURL(), recordingDelegate: self)
     }
     
     func stopRecordVideo() {
@@ -106,9 +106,9 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
     
 //MARK: - private init methods
     
-     @objc private func audioInput() -> AVCaptureDeviceInput {
+     @objc fileprivate func audioInput() -> AVCaptureDeviceInput {
         
-        let audioDevice = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeAudio)
+        let audioDevice = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeAudio)
         var audioInput = AVCaptureDeviceInput()
         
         do {
@@ -120,7 +120,7 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         return audioInput
     }
     
-    @objc private func captureMovieFileOutput() -> AVCaptureMovieFileOutput {
+    @objc fileprivate func captureMovieFileOutput() -> AVCaptureMovieFileOutput {
         
         let movieFile = AVCaptureMovieFileOutput()
         
@@ -129,22 +129,22 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         return movieFile
     }
     
-    @objc private func previewLayerWithFrame(frame: CGRect, session: AVCaptureSession) -> AVCaptureVideoPreviewLayer {
+    @objc fileprivate func previewLayerWithFrame(_ frame: CGRect, session: AVCaptureSession) -> AVCaptureVideoPreviewLayer {
         
         let previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer!.frame = frame
         previewLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill
-        previewLayer?.connection.videoOrientation = AVCaptureVideoOrientation.Portrait
+        previewLayer?.connection.videoOrientation = AVCaptureVideoOrientation.portrait
         
-        return previewLayer
+        return previewLayer!
     }
     
-    @objc private func deviceInputWithMediaType(mediaType: NSString, position: AVCaptureDevicePosition) -> AVCaptureDeviceInput {
+    @objc fileprivate func deviceInputWithMediaType(_ mediaType: NSString, position: AVCaptureDevicePosition) -> AVCaptureDeviceInput {
         
-        let devices = AVCaptureDevice.devicesWithMediaType(mediaType as String)
-        var captureDevice: AVCaptureDevice = devices.first as! AVCaptureDevice
+        let devices = AVCaptureDevice.devices(withMediaType: mediaType as String)
+        var captureDevice: AVCaptureDevice = devices!.first as! AVCaptureDevice
         
-        for object:AnyObject in devices {
+        for object in devices! {
             
             let device = object as! AVCaptureDevice
             
@@ -167,14 +167,14 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         return videoDeviceInput
     }
     
-    @objc private func sessionPresetWithDevice(device: AVCaptureDevice) -> String {
+    @objc fileprivate func sessionPresetWithDevice(_ device: AVCaptureDevice) -> String {
         
         var sessionPresets = [AVCaptureSessionPreset1920x1080, AVCaptureSessionPreset1280x720,
                               AVCaptureSessionPreset640x480, AVCaptureSessionPreset352x288]
         
         if #available(iOS 9.0, *) {
             
-            sessionPresets.insert(AVCaptureSessionPreset3840x2160, atIndex: 0)
+            sessionPresets.insert(AVCaptureSessionPreset3840x2160, at: 0)
         }
         
         for preset in sessionPresets {
@@ -192,25 +192,25 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
     
 //MARK: - private edit videorecord methods
     
-    @objc private func uniqueFileURL() -> NSURL {
+    @objc fileprivate func uniqueFileURL() -> URL {
         
-        let fileName = NSProcessInfo.processInfo().globallyUniqueString
+        let fileName = ProcessInfo.processInfo.globallyUniqueString
         let filePath = "file:/\(NSTemporaryDirectory())\(fileName).mov"
-        let fileUrl = NSURL(string: filePath)
+        let fileUrl = URL(string: filePath)
         
         return fileUrl!
     }
     
-    @objc private func cropFileWithURL(URL: NSURL) {
+    @objc fileprivate func cropFileWithURL(_ URL: Foundation.URL) {
         
         let outputhFileUrl = uniqueFileURL()
         
-        let asset = AVAsset(URL: URL)
+        let asset = AVAsset(url: URL)
         
         let composition = AVMutableComposition()
-        composition.addMutableTrackWithMediaType(AVMediaTypeVideo, preferredTrackID: kCMPersistentTrackID_Invalid)
+        composition.addMutableTrack(withMediaType: AVMediaTypeVideo, preferredTrackID: kCMPersistentTrackID_Invalid)
         
-        let clipVideoTrack = asset.tracksWithMediaType(AVMediaTypeVideo).first
+        let clipVideoTrack = asset.tracks(withMediaType: AVMediaTypeVideo).first
         
         let videoComposition = AVMutableVideoComposition()
         videoComposition.renderSize = CGSize(width: (clipVideoTrack?.naturalSize.height)!, height: (clipVideoTrack?.naturalSize.height)!)
@@ -221,19 +221,19 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         
         let transformer = AVMutableVideoCompositionLayerInstruction(assetTrack: clipVideoTrack!)
         
-        let t1 = CGAffineTransformMakeTranslation((clipVideoTrack?.naturalSize.height)!,
-                                                  -((clipVideoTrack?.naturalSize.width)! - (clipVideoTrack?.naturalSize.height)!) / 2)
+        let t1 = CGAffineTransform(translationX: (clipVideoTrack?.naturalSize.height)!,
+                                                  y: -((clipVideoTrack?.naturalSize.width)! - (clipVideoTrack?.naturalSize.height)!) / 2)
         
         let x = (clipVideoTrack?.naturalSize.height)!
         let y = -((clipVideoTrack?.naturalSize.width)! - (clipVideoTrack?.naturalSize.height)!) / 2
         
         print ("x = \(x), y = \(y)")
         
-        let t2 = CGAffineTransformRotate(t1, CGFloat(M_PI_2))
+        let t2 = t1.rotated(by: CGFloat(M_PI_2))
         
         let finalTransform = t2
         
-        transformer.setTransform(finalTransform, atTime: kCMTimeZero)
+        transformer.setTransform(finalTransform, at: kCMTimeZero)
         
         instructions.layerInstructions = [transformer]
         videoComposition.instructions = [instructions]
@@ -244,7 +244,7 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         exporter?.outputURL = outputhFileUrl
         exporter?.outputFileType = AVFileTypeQuickTimeMovie
         
-        exporter?.exportAsynchronouslyWithCompletionHandler({
+        exporter?.exportAsynchronously(completionHandler: {
             
             //self.saveVieoToAlbumFromURL(outputhFileUrl)
             
@@ -252,16 +252,16 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         })
     }
     
-    @objc private func resizeFileWithURL(URL: NSURL, newSize: CGSize) {
+    @objc fileprivate func resizeFileWithURL(_ URL: Foundation.URL, newSize: CGSize) {
         
         let outputhFileUrl = uniqueFileURL()
         
-        let asset = AVAsset(URL: URL)
+        let asset = AVAsset(url: URL)
         
         let composition = AVMutableComposition()
-        composition.addMutableTrackWithMediaType(AVMediaTypeVideo, preferredTrackID: kCMPersistentTrackID_Invalid)
+        composition.addMutableTrack(withMediaType: AVMediaTypeVideo, preferredTrackID: kCMPersistentTrackID_Invalid)
         
-        let clipVideoTrack = asset.tracksWithMediaType(AVMediaTypeVideo).first
+        let clipVideoTrack = asset.tracks(withMediaType: AVMediaTypeVideo).first
         
         let videoComposition = AVMutableVideoComposition()
         videoComposition.renderSize = CGSize(width: newSize.width, height: newSize.height)
@@ -272,12 +272,12 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         
         let transformer = AVMutableVideoCompositionLayerInstruction(assetTrack: clipVideoTrack!)
         
-        let t3 = CGAffineTransformMakeScale(newSize.height / (clipVideoTrack?.naturalSize.height)!,
-                                            newSize.width / (clipVideoTrack?.naturalSize.width)!)
+        let t3 = CGAffineTransform(scaleX: newSize.height / (clipVideoTrack?.naturalSize.height)!,
+                                            y: newSize.width / (clipVideoTrack?.naturalSize.width)!)
         
         let finalTransform = t3
         
-        transformer.setTransform(finalTransform, atTime: kCMTimeZero)
+        transformer.setTransform(finalTransform, at: kCMTimeZero)
         
         instructions.layerInstructions = [transformer]
         videoComposition.instructions = [instructions]
@@ -288,19 +288,19 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
         exporter?.outputURL = outputhFileUrl
         exporter?.outputFileType = AVFileTypeQuickTimeMovie
         
-        exporter?.exportAsynchronouslyWithCompletionHandler({
+        exporter?.exportAsynchronously(completionHandler: {
             
             self.saveVieoToAlbumFromURL(outputhFileUrl)
         })
     }
     
-    @objc private func saveVieoToAlbumFromURL(URL: NSURL) {
+    @objc fileprivate func saveVieoToAlbumFromURL(_ URL: Foundation.URL) {
         
         let assetsLibrary = ALAssetsLibrary()
         
-        if assetsLibrary.videoAtPathIsCompatibleWithSavedPhotosAlbum(URL) {
+        if assetsLibrary.videoAtPathIs(compatibleWithSavedPhotosAlbum: URL) {
             
-            assetsLibrary.writeVideoAtPathToSavedPhotosAlbum(URL, completionBlock: { (url, error) in
+            assetsLibrary.writeVideoAtPath(toSavedPhotosAlbum: URL, completionBlock: { (url, error) in
                 
                 if error != nil {
                     
@@ -316,12 +316,12 @@ class VideoRecorder: NSObject, AVCaptureFileOutputRecordingDelegate {
     
 // MARK: - AVCaptureFileOutputRecordingDelegate
     
-    func captureOutput(captureOutput: AVCaptureFileOutput!, didStartRecordingToOutputFileAtURL fileURL: NSURL!, fromConnections connections: [AnyObject]!) {
+    func capture(_ captureOutput: AVCaptureFileOutput!, didStartRecordingToOutputFileAt fileURL: URL!, fromConnections connections: [Any]!) {
         print("Started")
         
     }
     
-    func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError!){
+    func capture(_ captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAt outputFileURL: URL!, fromConnections connections: [Any]!, error: Error!){
         
         cropFileWithURL(outputFileURL)
     }

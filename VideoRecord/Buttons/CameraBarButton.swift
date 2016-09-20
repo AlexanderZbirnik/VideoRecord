@@ -10,7 +10,7 @@ import UIKit
 
 class CameraBarButton: UIBarButtonItem {
     
-    func activeFrontCamera(active: Bool) {
+    func activeFrontCamera(_ active: Bool) {
         
         if active {
             

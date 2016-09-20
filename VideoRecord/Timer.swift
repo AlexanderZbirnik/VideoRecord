@@ -10,46 +10,46 @@ import UIKit
 
 protocol TimerDelegate: class {
     
-    func willStartTimer(timer: Timer)
-    func didStartTimer(timer: Timer)
+    func willStartTimer(_ timer: AZTimer)
+    func didStartTimer(_ timer: AZTimer)
     
-    func timer(timer:Timer, countTimerOnSecond: UInt32)
+    func timer(_ timer:AZTimer, countTimerOnSecond: UInt32)
     
-    func timer(timer:Timer, willPauseTimerOnSecond: UInt32)
-    func timer(timer:Timer, didPauseTimerOnSecond: UInt32)
+    func timer(_ timer:AZTimer, willPauseTimerOnSecond: UInt32)
+    func timer(_ timer:AZTimer, didPauseTimerOnSecond: UInt32)
     
-    func timer(timer:Timer, willResumeTimerOnSecond: UInt32)
-    func timer(timer:Timer, didResumeTimerOnSecond: UInt32)
+    func timer(_ timer:AZTimer, willResumeTimerOnSecond: UInt32)
+    func timer(_ timer:AZTimer, didResumeTimerOnSecond: UInt32)
     
-    func timer(timer:Timer, willStopTimerOnSecond: UInt32)
-    func timer(timer:Timer, didStopTimerOnSecond: UInt32)
+    func timer(_ timer:AZTimer, willStopTimerOnSecond: UInt32)
+    func timer(_ timer:AZTimer, didStopTimerOnSecond: UInt32)
     
-    func willFinishTimer(timer: Timer)
-    func didFinishTimer(timer: Timer)
+    func willFinishTimer(_ timer: AZTimer)
+    func didFinishTimer(_ timer: AZTimer)
 }
 
 extension TimerDelegate {
     
-    func willStartTimer(timer: Timer) {}
-    func didStartTimer(timer: Timer) {}
+    func willStartTimer(_ timer: AZTimer) {}
+    func didStartTimer(_ timer: AZTimer) {}
     
-    func timer(timer:Timer, countTimerOnSecond: UInt32) {}
-    func timer(timer:Timer, willPauseTimerOnSecond: UInt32) {}
-    func timer(timer:Timer, didPauseTimerOnSecond: UInt32) {}
-    func timer(timer:Timer, willResumeTimerOnSecond: UInt32) {}
-    func timer(timer:Timer, didResumeTimerOnSecond: UInt32) {}
-    func timer(timer:Timer, willStopTimerOnSecond: UInt32) {}
-    func timer(timer:Timer, didStopTimerOnSecond: UInt32) {}
+    func timer(_ timer:AZTimer, countTimerOnSecond: UInt32) {}
+    func timer(_ timer:AZTimer, willPauseTimerOnSecond: UInt32) {}
+    func timer(_ timer:AZTimer, didPauseTimerOnSecond: UInt32) {}
+    func timer(_ timer:AZTimer, willResumeTimerOnSecond: UInt32) {}
+    func timer(_ timer:AZTimer, didResumeTimerOnSecond: UInt32) {}
+    func timer(_ timer:AZTimer, willStopTimerOnSecond: UInt32) {}
+    func timer(_ timer:AZTimer, didStopTimerOnSecond: UInt32) {}
     
-    func willFinishTimer(timer: Timer) {}
+    func willFinishTimer(_ timer: AZTimer) {}
 }
 
-class Timer: NSObject {
+class AZTimer: NSObject {
     
-    private let seconds: UInt32
+    fileprivate let seconds: UInt32
     
-    private var timer: NSTimer?
-    private var countSeconds: UInt32
+    fileprivate var timer: Timer?
+    fileprivate var countSeconds: UInt32
     
     var delegate: ViewController?
     
@@ -87,7 +87,7 @@ class Timer: NSObject {
         self.countSeconds = 0
     }
     
-    @objc private func counter() {
+    @objc fileprivate func counter() {
         
         if self.countSeconds < self.seconds - 1 {
             
@@ -103,10 +103,10 @@ class Timer: NSObject {
         }
     }
     
-    private func startNewTimer() {
+    fileprivate func startNewTimer() {
         
-        self.timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self,
-                                                            selector: #selector(Timer.counter),
+        self.timer = Timer.scheduledTimer(timeInterval: 1, target: self,
+                                                            selector: #selector(AZTimer.counter),
                                                             userInfo: nil,
                                                             repeats: true)
     }

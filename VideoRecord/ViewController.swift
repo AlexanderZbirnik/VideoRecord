@@ -38,16 +38,16 @@ class ViewController: UIViewController, TimerDelegate{
     var videoRecorder: VideoRecorder?
     
     var startRecord: Bool = false
-    var timer: Timer?
+    var timer: AZTimer?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.navigationController!.navigationBar.setBackgroundImage(UIImage(), forBarMetrics: .Default)
+        self.navigationController!.navigationBar.setBackgroundImage(UIImage(), for: .default)
         self.navigationController!.navigationBar.shadowImage = UIImage()
-        self.navigationController!.navigationBar.translucent = true
+        self.navigationController!.navigationBar.isTranslucent = true
         
-        self.timer = Timer(seconds: UInt32(Time.maxDuration))
+        self.timer = AZTimer(seconds: UInt32(Time.maxDuration))
         self.timer?.delegate = self
         
         self.view.setNeedsLayout()
@@ -66,7 +66,7 @@ class ViewController: UIViewController, TimerDelegate{
         self.recordButton.startRecordVideo(false)
     }
         
-    func formatDurationTitleWithCountSeconds(count: UInt16) -> String {
+    func formatDurationTitleWithCountSeconds(_ count: UInt16) -> String {
         
         var title = ""
         
@@ -74,20 +74,21 @@ class ViewController: UIViewController, TimerDelegate{
             
             title = "00:00:\(formatString(count))"
             
-        } else if count >= Time.oneMunute {
+        } else {
             
-            var seconds = UInt16(Float(count) % Float(Time.oneMunute))
+            var seconds = UInt16(Float(count).truncatingRemainder(dividingBy: Float(Time.oneMunute)))
             var minuts = count / Time.oneMunute
             
             if minuts >= Time.oneMunute {
                 
                 let hours = count / Time.oneHour
                 
-                minuts = UInt16(Float(count) % Float(Time.oneHour)) / Time.oneMunute
-                seconds = UInt16(Float(count) % Float(Time.oneHour) % Float(Time.oneMunute))
+                minuts = UInt16(Float(count).truncatingRemainder(dividingBy: Float(Time.oneHour))) / Time.oneMunute
+                
+                seconds = UInt16((count % Time.oneHour) / Time.oneMunute)
                 
                 title = "\(formatString(hours)):\(formatString(minuts)):\(formatString(seconds))"
-                
+                                
             } else {
                 
                 title = "00:\(formatString(minuts)):\(formatString(seconds))"
@@ -97,7 +98,7 @@ class ViewController: UIViewController, TimerDelegate{
         return title
     }
     
-    func formatString(number:UInt16) -> String {
+    func formatString(_ number:UInt16) -> String {
         
         if number < Time.tenSeconds {
             
@@ -111,38 +112,38 @@ class ViewController: UIViewController, TimerDelegate{
     
 // MARK: TimerDelegate
     
-    func timer(timer:Timer, countTimerOnSecond: UInt32) {
+    func timer(_ timer:AZTimer, countTimerOnSecond: UInt32) {
         
         self.recordButton.title(formatDurationTitleWithCountSeconds(UInt16(countTimerOnSecond)))
     }
     
-    func didFinishTimer(timer: Timer) {
+    func didFinishTimer(_ timer: AZTimer) {
         
         stopRecoredVideo()
     }
 
 // MARK: - Actions
     
-    @IBAction func changeCameraAction(sender: CameraBarButton) {
+    @IBAction func changeCameraAction(_ sender: CameraBarButton) {
         
         var devicePosition = self.videoRecorder?.changeCamera()
         var activeFront: Bool?
         
-        if devicePosition == .Back {
+        if devicePosition == .back {
             
-            devicePosition = AVCaptureDevicePosition.Front
+            devicePosition = AVCaptureDevicePosition.front
             activeFront = true
 
         } else {
 
-            devicePosition = AVCaptureDevicePosition.Back
+            devicePosition = AVCaptureDevicePosition.back
             activeFront = false
         }
         
         sender.activeFrontCamera(activeFront!)
     }
     
-    @IBAction func startOrStopButtonAction(sender: RecordButton) {
+    @IBAction func startOrStopButtonAction(_ sender: RecordButton) {
         
         if self.startRecord == false {
             
